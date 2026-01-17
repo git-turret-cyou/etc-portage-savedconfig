@@ -23,7 +23,8 @@ char *scroll = NULL;
 char *stty_args = "stty raw pass8 nl -echo -iexten -cstopb 38400";
 
 /* identification sequence returned in DA and DECID */
-char *vtiden = "\033[?6c";
+/* use same one as kitty */
+char *vtiden = "\033[?62c";
 
 /* Kerning / character bounding-box multipliers */
 static float cwscale = 1.0;
@@ -53,7 +54,7 @@ int allowwindowops = 0;
  * near minlatency, but it waits longer for slow updates to avoid partial draw.
  * low minlatency will tear/flicker more, as it can "detect" idle too early.
  */
-static double minlatency = 8;
+static double minlatency = 2;
 static double maxlatency = 33;
 
 /*
@@ -66,6 +67,17 @@ static unsigned int blinktimeout = 800;
  * thickness of underline and bar cursors
  */
 static unsigned int cursorthickness = 2;
+
+/* 1: render most of the lines/blocks characters without using the font for
+ *    perfect alignment between cells (U2500 - U259F except dashes/diagonals).
+ *    Bold affects lines thickness if boxdraw_bold is not 0. Italic is ignored.
+ * 0: disable (render all U25XX glyphs normally from the font).
+ */
+const int boxdraw = 1;
+const int boxdraw_bold = 1;
+
+/* braille (U28XX):  1: render as adjacent "pixels",  0: use font */
+const int boxdraw_braille = 1;
 
 /*
  * bell volume. It must be a value between -100 and 100. Use 0 for disabling
@@ -178,24 +190,24 @@ static unsigned int defaultattr = 11;
  */
 static uint forcemousemod = ShiftMask;
 
+/* Internal keyboard shortcuts. */
+#define MODKEY Mod1Mask
+#define TERMMOD (ControlMask|ShiftMask)
+
 /*
  * Internal mouse shortcuts.
  * Beware that overloading Button1 will disable the selection.
  */
 static MouseShortcut mshortcuts[] = {
 	/* mask                 button   function        argument       release */
-	{ NULL,            Button4, kscrollup,      {.i = 1} },
-	{ NULL,            Button5, kscrolldown,    {.i = 1} },
+	{ XK_ANY_MOD,          	Button4, kscrollup,      {.i = 1} },
+	{ XK_ANY_MOD,          	Button5, kscrolldown,    {.i = 1} },
 	{ XK_ANY_MOD,           Button2, selpaste,       {.i = 0},      1 },
 	{ ShiftMask,            Button4, ttysend,        {.s = "\033[5;2~"} },
 	{ XK_ANY_MOD,           Button4, ttysend,        {.s = "\031"} },
 	{ ShiftMask,            Button5, ttysend,        {.s = "\033[6;2~"} },
 	{ XK_ANY_MOD,           Button5, ttysend,        {.s = "\005"} },
 };
-
-/* Internal keyboard shortcuts. */
-#define MODKEY Mod1Mask
-#define TERMMOD (ControlMask|ShiftMask)
 
 static Shortcut shortcuts[] = {
 	/* mask                 keysym          function        argument */

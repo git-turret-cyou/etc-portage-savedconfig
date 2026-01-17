@@ -1,0 +1,116 @@
+diff --git a/driver/xscreensaver-systemd.c b/driver/xscreensaver-systemd.c
+index f9998f7..7433900 100644
+--- a/driver/xscreensaver-systemd.c
++++ b/driver/xscreensaver-systemd.c
+@@ -471,7 +471,7 @@ xscreensaver_command (const char *cmd)
+   if (rc == -1)
+     fprintf (stderr, "%s: exec failed: %s\n", blurb(), buf);
+   else if (WEXITSTATUS(rc) != 0)
+-    fprintf (stderr, "%s: exec: \"%s\" exited with status %d\n", 
++    fprintf (stderr, "%s: exec: \"%s\" exited with status %d\n",
+              blurb(), buf, WEXITSTATUS(rc));
+ }
+ 
+@@ -501,14 +501,14 @@ dbus_send (sd_bus *bus, const char *dest, const char *path,
+ 
+   rc = sd_bus_call (bus, m, -1, &error, &reply);
+   if (rc < 0) {
+-    fprintf (stderr, "%s: dbus_send: call failed: %s.%s: %s\n", 
++    fprintf (stderr, "%s: dbus_send: call failed: %s.%s: %s\n",
+              blurb(), interface, msg, strerror(-rc));
+     return 0;
+   }
+ 
+   rc = sd_bus_message_read (reply, "s", &ret);
+   if (rc < 0) {
+-    fprintf (stderr, "%s: dbus_send: failed to read reply: %s.%s: %s\n", 
++    fprintf (stderr, "%s: dbus_send: failed to read reply: %s.%s: %s\n",
+              blurb(), interface, msg, strerror(-rc));
+     return 0;
+   }
+@@ -531,12 +531,12 @@ xscreensaver_register_sleep_lock (struct handler_ctx *ctx)
+                                DBUS_SD_METHOD_WHAT, DBUS_SD_METHOD_WHO,
+                                DBUS_SD_METHOD_WHY, DBUS_SD_METHOD_MODE);
+   if (rc < 0) {
+-    fprintf (stderr, "%s: inhibit sleep failed: %s\n", 
++    fprintf (stderr, "%s: inhibit sleep failed: %s\n",
+              blurb(), error.message);
+     goto DONE;
+   }
+ 
+-  /* Save the lock fd and explicitly take a ref to the lock message. */
++  // Save the lock fd and explicitly take a ref to the lock message.
+   rc = sd_bus_message_read (reply, "h", &fd);
+   if (rc < 0 || fd < 0) {
+     fprintf (stderr, "%s: inhibit sleep failed: no lock fd: %s\n",
+@@ -550,7 +550,7 @@ xscreensaver_register_sleep_lock (struct handler_ctx *ctx)
+  DONE:
+   sd_bus_error_free (&error);
+ 
+-  return rc;
++  return 0;
+ }
+ 
+ 
+@@ -984,7 +984,7 @@ xscreensaver_kde_inhibitor_changed_cb (sd_bus_message *m, void *arg,
+ 
+   rc = sd_bus_call (bus, m, -1, &error, &reply);
+   if (rc < 0) {
+-    fprintf (stderr, "%s: KDE: call failed: %s.%s: %s\n", 
++    fprintf (stderr, "%s: KDE: call failed: %s.%s: %s\n",
+              blurb(), interface, msg, strerror(-rc));
+     return rc;
+   }
+@@ -994,7 +994,7 @@ xscreensaver_kde_inhibitor_changed_cb (sd_bus_message *m, void *arg,
+   /* It's an array of an arbitrary number of structs of 2 strings each. */
+   rc = sd_bus_message_enter_container (m, 'a', "(ss)");
+   if (rc < 0) {
+-    fprintf (stderr, "%s: KDE: enter container failed: %s.%s: %s\n", 
++    fprintf (stderr, "%s: KDE: enter container failed: %s.%s: %s\n",
+              blurb(), interface, msg, strerror(-rc));
+     return rc;
+   }
+@@ -1019,7 +1019,7 @@ xscreensaver_kde_inhibitor_changed_cb (sd_bus_message *m, void *arg,
+ 
+     rc = sd_bus_message_read (m, "(ss)", &appname, &reason);
+     if (rc < 0) {
+-      fprintf (stderr, "%s: KDE: message read failed: %s.%s: %s\n", 
++      fprintf (stderr, "%s: KDE: message read failed: %s.%s: %s\n",
+                blurb(), interface, msg, strerror(-rc));
+       return rc;
+     }
+@@ -1179,14 +1179,14 @@ service_exists_p (sd_bus *bus, const char *name)
+ 
+   rc = sd_bus_call (bus, m, -1, &error, &reply);
+   if (rc < 0) {
+-    fprintf (stderr, "%s: dbus_send: call failed: %s.%s: %s\n", 
++    fprintf (stderr, "%s: dbus_send: call failed: %s.%s: %s\n",
+              blurb(), interface, msg, strerror(-rc));
+     return 0;
+   }
+ 
+   rc = sd_bus_message_read (reply, "b", &ret);
+   if (rc < 0) {
+-    fprintf (stderr, "%s: dbus_send: failed to read reply: %s.%s: %s\n", 
++    fprintf (stderr, "%s: dbus_send: failed to read reply: %s.%s: %s\n",
+              blurb(), interface, msg, strerror(-rc));
+     return 0;
+   }
+@@ -1274,7 +1274,7 @@ xscreensaver_systemd_loop (void)
+     }
+   }
+ 
+-    
++
+   /* Register ourselves as "org.freedesktop.ScreenSaver" if possible.
+      If "org.gnome.SessionManager" or "org.kde.Solid.PowerManagement.
+      PolicyAgent" are registered, this is optional; otherwise it is
+@@ -1333,7 +1333,7 @@ xscreensaver_systemd_loop (void)
+       now = time ((time_t *) 0);
+       if (now >= start + timeout)
+         break;
+-      
++
+       retries++;
+       sleep (3);
+     }

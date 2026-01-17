@@ -1,0 +1,25 @@
+From 118741953e1eba532c08adf418605757ba8a17c9 Mon Sep 17 00:00:00 2001
+From: turret <turret@duck.com>
+Date: Thu, 1 Jan 2026 21:03:52 -0600
+Subject: [PATCH] set solitary if fullscreen, ignore floating status
+
+---
+ dwm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/dwm.c b/dwm.c
+index 24f2ec3..4b00eab 100644
+--- a/dwm.c
++++ b/dwm.c
+@@ -1667,7 +1667,7 @@ solitary(Client *c)
+ {
+ 	return ((nexttiled(c->mon->clients) == c && !nexttiled(c->next))
+ 	    || &monocle == c->mon->lt[c->mon->sellt]->arrange)
+-	    && !c->isfullscreen && !c->isfloating
++	    || c->isfullscreen
+ 	    && NULL != c->mon->lt[c->mon->sellt]->arrange;
+ }
+ 
+-- 
+2.51.2
+
